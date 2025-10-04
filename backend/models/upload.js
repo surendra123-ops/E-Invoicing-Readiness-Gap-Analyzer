@@ -8,7 +8,8 @@ const uploadSchema = new mongoose.Schema({
   uploadId: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    index: true
   },
   originalFilename: {
     type: String,
@@ -24,13 +25,10 @@ const uploadSchema = new mongoose.Schema({
     required: true
   },
   preview: {
-    type: mongoose.Schema.Types.Mixed,
-    required: true
+    data: [mongoose.Schema.Types.Mixed],
+    columnTypes: mongoose.Schema.Types.Mixed
   },
-  rawData: {
-    type: mongoose.Schema.Types.Mixed,
-    required: true
-  },
+  rawData: [mongoose.Schema.Types.Mixed],
   country: {
     type: String,
     default: null
@@ -39,15 +37,22 @@ const uploadSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  status: {
+    type: String,
+    enum: ['uploaded', 'mapped', 'validated', 'completed'],
+    default: 'uploaded'
+  },
   expiresAt: {
     type: Date,
-    default: () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+    default: () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+    index: { expireAfterSeconds: 0 }
   }
 }, {
   timestamps: true
 });
 
-// Index for cleanup
-uploadSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+// Index for cleanup and queries
+uploadSchema.index({ createdAt: -1 });
+uploadSchema.index({ uploadId: 1, status: 1 });
 
 module.exports = mongoose.model('Upload', uploadSchema);

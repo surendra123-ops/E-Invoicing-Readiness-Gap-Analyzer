@@ -12,4 +12,7 @@ router.post('/json', UploadController.uploadJsonPayload);
 // Get upload details
 router.get('/:uploadId', UploadController.getUpload);
 
+// Get upload history
+router.get('/history', UploadController.getUploadHistory);
+
 module.exports = router;

@@ -1,3 +1,9 @@
+/* Import component styles - must come first */
+@import './components/FieldMapping.css';
+@import './components/RuleValidation.css';
+@import './components/ReportDownload.css';
+@import './components/History.css';
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -444,6 +450,214 @@
   margin: 0 30px 20px;
 }
 
+/* Additional styles for new components */
+.preview-section .section-header {
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.preview-section .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.info-item {
+  font-size: 14px;
+  padding: 8px 0;
+}
+
+/* Additional styles for completion section */
+.completion-section {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.completion-header {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  padding: 40px 30px;
+  text-align: center;
+}
+
+.completion-header .success-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.completion-header h2 {
+  margin-bottom: 10px;
+  font-size: 2rem;
+}
+
+.completion-header p {
+  opacity: 0.9;
+  margin: 0;
+}
+
+.completion-summary {
+  padding: 30px;
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.summary-card {
+  flex: 1;
+  min-width: 250px;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.summary-card h4 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.summary-card p {
+  margin: 8px 0;
+  color: #6c757d;
+}
+
+.summary-card strong {
+  color: #2c3e50;
+}
+
+.summary-card ul {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.summary-card li {
+  margin-bottom: 8px;
+  color: #6c757d;
+}
+
+.completion-actions {
+  padding: 30px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  border-top: 1px solid #e9ecef;
+  flex-wrap: wrap;
+}
+
+/* Progress Indicator Updates */
+.progress-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40px;
+  padding: 0 20px;
+  flex-wrap: wrap;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 80px;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  background: #e9ecef;
+  color: #6c757d;
+  transition: all 0.3s;
+}
+
+.progress-step.active .step-number {
+  background: #667eea;
+  color: white;
+}
+
+.progress-step.completed .step-number {
+  background: #28a745;
+  color: white;
+}
+
+.step-label {
+  font-size: 14px;
+  color: #6c757d;
+  font-weight: 500;
+  text-align: center;
+}
+
+.progress-step.active .step-label {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.progress-step.completed .step-label {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.progress-line {
+  width: 60px;
+  height: 2px;
+  background: #e9ecef;
+  margin: 0 10px;
+}
+
+.progress-step.completed + .progress-line {
+  background: #28a745;
+}
+
+/* Preview Section Updates */
+.preview-note {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.preview-note p {
+  margin: 0;
+  color: #856404;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Additional styles for upload section header actions */
+.upload-section .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.upload-section .header-actions {
+  display: flex;
+  gap: 10px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .container {
@@ -487,8 +701,13 @@
   }
 
   .info-grid {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     gap: 10px;
+  }
+
+  .info-item {
+    font-size: 14px;
+    padding: 8px 0;
   }
 
   .table-container {
@@ -499,31 +718,25 @@
   .preview-table td {
     padding: 8px;
   }
-}
 
-/* Import field mapping styles */
-@import './components/FieldMapping.css';
+  .progress-indicator {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
 
-/* Additional styles for new components */
-.preview-section .section-header {
-  flex-wrap: wrap;
-  gap: 15px;
-}
+  .progress-line {
+    width: 30px;
+  }
 
-.preview-section .header-actions {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  flex-wrap: wrap;
-}
+  .action-buttons {
+    flex-direction: column;
+  }
 
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
-}
+  .completion-summary {
+    flex-direction: column;
+  }
 
-.info-item {
-  font-size: 14px;
-  padding: 8px 0;
+  .completion-actions {
+    flex-direction: column;
+  }
 }

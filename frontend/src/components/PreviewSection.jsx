@@ -12,6 +12,11 @@ const PreviewSection = ({ uploadData, onReset, onStartMapping }) => {
     
     if (sampleValues.length === 0) return 'text'
     
+    // Check if it's an array or object
+    if (Array.isArray(sampleValues[0]) || (typeof sampleValues[0] === 'object' && sampleValues[0] !== null)) {
+      return 'object'
+    }
+    
     // Check for date pattern (YYYY-MM-DD)
     const isDate = sampleValues.every(val => /^\d{4}-\d{2}-\d{2}$/.test(val))
     if (isDate) return 'date'
@@ -26,6 +31,15 @@ const PreviewSection = ({ uploadData, onReset, onStartMapping }) => {
   const formatValue = (value, type) => {
     if (value === null || value === undefined || value === '') {
       return <span className="empty-value">empty</span>
+    }
+    
+    // Handle arrays and objects
+    if (Array.isArray(value)) {
+      return <span className="array-value">[{value.length} items]</span>
+    }
+    
+    if (typeof value === 'object' && value !== null) {
+      return <span className="object-value">[object]</span>
     }
     
     if (type === 'number') {

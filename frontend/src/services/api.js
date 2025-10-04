@@ -52,6 +52,11 @@ export const getUploadDetails = async (uploadId) => {
   return response.data
 }
 
+export const getUploadHistory = async (limit = 20, offset = 0) => {
+  const response = await api.get(`/upload/history?limit=${limit}&offset=${offset}`)
+  return response.data
+}
+
 // Fields endpoints
 export const getStandardFields = async () => {
   const response = await api.get('/fields')
@@ -68,8 +73,72 @@ export const getFieldMappings = async (uploadId) => {
   return response.data
 }
 
+// Rules endpoints
+export const checkRules = async (uploadId) => {
+  const response = await api.post('/rules/check', { uploadId })
+  return response.data
+}
+
+export const getValidationResults = async (validationId) => {
+  const response = await api.get(`/rules/results/${validationId}`)
+  return response.data
+}
+
+export const getValidationByUploadId = async (uploadId) => {
+  const response = await api.get(`/rules/upload/${uploadId}`)
+  return response.data
+}
+
+export const getRuleDefinitions = async () => {
+  const response = await api.get('/rules/definitions')
+  return response.data
+}
+
+// Reports endpoints
+export const getReportSummary = async (uploadId) => {
+  const response = await api.get(`/reports/${uploadId}/summary`)
+  return response.data
+}
+
+export const downloadReport = async (uploadId, format = 'json') => {
+  const response = await api.get(`/reports/${uploadId}?format=${format}`, {
+    responseType: 'blob'
+  })
+  
+  // Create download link
+  const blob = new Blob([response.data])
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  
+  // Set filename based on format
+  const timestamp = new Date().toISOString().split('T')[0]
+  const filename = `e-invoicing-readiness-report-${timestamp}.${format}`
+  link.download = filename
+  
+  // Trigger download
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  window.URL.revokeObjectURL(url)
+  
+  return { success: true, filename }
+}
+
 export const healthCheck = async () => {
   const response = await api.get('/health')
+  return response.data
+}
+
+// Analyze endpoint
+export const analyzeData = async (uploadId, questionnaire = {}) => {
+  const response = await api.post('/analyze', { uploadId, questionnaire })
+  return response.data
+}
+
+// Get report by ID
+export const getReport = async (reportId) => {
+  const response = await api.get(`/report/${reportId}`)
   return response.data
 }
 

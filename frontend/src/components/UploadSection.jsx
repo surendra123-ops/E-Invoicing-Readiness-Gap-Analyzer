@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { uploadFile, uploadJsonPayload } from '../services/api'
 import LoadingSpinner from './LoadingSpinner'
 
-const UploadSection = ({ onUploadSuccess, onUploadError, onLoading, loading, error }) => {
+const UploadSection = ({ onUploadSuccess, onUploadError, onLoading, loading, error, onShowHistory }) => {
   const [selectedFile, setSelectedFile] = useState(null)
   const [country, setCountry] = useState('')
   const [erp, setErp] = useState('')
@@ -68,20 +68,26 @@ const UploadSection = ({ onUploadSuccess, onUploadError, onLoading, loading, err
     <section className="upload-section">
       <div className="section-header">
         <h2>Upload Invoice Data</h2>
-        <div className="upload-mode-toggle">
-          <button 
-            className={`toggle-btn ${uploadMode === 'file' ? 'active' : ''}`}
-            onClick={() => setUploadMode('file')}
-          >
-            File Upload
-          </button>
-          <button 
-            className={`toggle-btn ${uploadMode === 'json' ? 'active' : ''}`}
-            onClick={() => setUploadMode('json')}
-          >
-            JSON Payload
+        <div className="header-actions">
+          <button onClick={onShowHistory} className="btn btn-secondary btn-sm">
+            📊 View History
           </button>
         </div>
+      </div>
+
+      <div className="upload-mode-toggle">
+        <button 
+          className={`toggle-btn ${uploadMode === 'file' ? 'active' : ''}`}
+          onClick={() => setUploadMode('file')}
+        >
+          File Upload
+        </button>
+        <button 
+          className={`toggle-btn ${uploadMode === 'json' ? 'active' : ''}`}
+          onClick={() => setUploadMode('json')}
+        >
+          JSON Payload
+        </button>
       </div>
 
       {error && (

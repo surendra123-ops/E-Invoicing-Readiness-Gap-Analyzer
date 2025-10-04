@@ -46,7 +46,8 @@ class UploadController {
         },
         rawData: parsedData,
         country: country || null,
-        erp: erp || null
+        erp: erp || null,
+        status: 'uploaded'
       });
       
       await upload.save();
@@ -131,7 +132,8 @@ class UploadController {
         },
         rawData: parsedData,
         country: country || null,
-        erp: erp || null
+        erp: erp || null,
+        status: 'uploaded'
       });
       
       await upload.save();
@@ -188,6 +190,7 @@ class UploadController {
         columnTypes: upload.preview.columnTypes,
         country: upload.country,
         erp: upload.erp,
+        status: upload.status,
         createdAt: upload.createdAt
       });
       
@@ -195,6 +198,58 @@ class UploadController {
       console.error('Get upload error:', error);
       res.status(500).json({
         error: 'Failed to retrieve upload',
+        message: error.message
+      });
+    }
+  }
+
+  // Get upload history
+  static async getUploadHistory(req, res) {
+    try {
+      const { limit = 20, offset = 0 } = req.query;
+      
+      const uploads = await Upload.find({})
+        .select('uploadId originalFilename rowsParsed status createdAt')
+        .sort({ createdAt: -1 })
+        .limit(parseInt(limit))
+        .skip(parseInt(offset));
+
+      // Get validation scores for each upload
+      const uploadsWithScores = await Promise.all(
+        uploads.map(async (upload) => {
+          const Validation = require('../models/validation');
+          const validation = await Validation.findOne({ uploadId: upload.uploadId })
+            .select('results.score createdAt')
+            .sort({ createdAt: -1 });
+
+          return {
+            uploadId: upload.uploadId,
+            fileName: upload.originalFilename,
+            rowsParsed: upload.rowsParsed,
+            status: upload.status,
+            score: validation?.results?.score || null,
+            createdAt: upload.createdAt,
+            validatedAt: validation?.createdAt || null
+          };
+        })
+      );
+
+      const totalCount = await Upload.countDocuments();
+
+      res.json({
+        uploads: uploadsWithScores,
+        pagination: {
+          total: totalCount,
+          limit: parseInt(limit),
+          offset: parseInt(offset),
+          hasMore: totalCount > parseInt(offset) + parseInt(limit)
+        }
+      });
+
+    } catch (error) {
+      console.error('Get upload history error:', error);
+      res.status(500).json({
+        error: 'Failed to retrieve upload history',
         message: error.message
       });
     }

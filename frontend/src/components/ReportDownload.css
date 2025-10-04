@@ -1,0 +1,286 @@
+.report-download {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.report-header {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  padding: 40px 30px;
+  text-align: center;
+}
+
+.report-header .success-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.report-header h3 {
+  margin-bottom: 10px;
+  font-size: 2rem;
+}
+
+.report-header p {
+  opacity: 0.9;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.report-loading {
+  text-align: center;
+  padding: 60px 30px;
+  color: #6c757d;
+}
+
+.report-loading h3 {
+  color: #2c3e50;
+  margin: 20px 0 10px;
+  font-size: 1.5rem;
+}
+
+.report-loading p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.report-summary {
+  padding: 30px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.summary-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.summary-card h4 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 10px;
+}
+
+.summary-details p {
+  margin: 8px 0;
+  color: #6c757d;
+}
+
+.summary-details strong {
+  color: #2c3e50;
+}
+
+.score-display {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.score-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #28a745;
+  line-height: 1;
+}
+
+.readiness-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.badge-warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.badge-danger {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.badge-secondary {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.download-section {
+  padding: 30px;
+}
+
+.download-section h4 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+}
+
+.download-section > p {
+  color: #6c757d;
+  margin-bottom: 30px;
+}
+
+.download-options {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.download-option {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s;
+}
+
+.download-option:hover {
+  background: #e9ecef;
+  border-color: #667eea;
+}
+
+.format-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  flex: 1;
+}
+
+.format-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.format-details h5 {
+  color: #2c3e50;
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+}
+
+.format-details p {
+  color: #6c757d;
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.format-details ul {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  color: #6c757d;
+}
+
+.format-details li {
+  margin-bottom: 4px;
+}
+
+.download-option .btn {
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.download-option .btn.downloading {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.report-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  padding: 30px;
+  border-top: 1px solid #e9ecef;
+}
+
+.btn-success {
+  background: #28a745;
+  color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+  background: #218838;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .report-header {
+    padding: 30px 20px;
+  }
+  
+  .report-header h3 {
+    font-size: 1.5rem;
+  }
+  
+  .report-summary {
+    padding: 20px;
+  }
+  
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .download-section {
+    padding: 20px;
+  }
+  
+  .download-option {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+  
+  .format-info {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .download-option .btn {
+    min-width: auto;
+    width: 100%;
+  }
+  
+  .score-display {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+  
+  .report-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .report-header .success-icon {
+    font-size: 3rem;
+  }
+  
+  .score-number {
+    font-size: 2rem;
+  }
+  
+  .format-icon {
+    font-size: 1.5rem;
+  }
+}

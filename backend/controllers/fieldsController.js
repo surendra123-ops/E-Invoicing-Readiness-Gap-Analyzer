@@ -1,4 +1,7 @@
+const crypto = require('crypto');
 const getsSchema = require('../../gets_v0_1_schema.json');
+const FieldMapping = require('../models/fieldMapping');
+const Upload = require('../models/upload');
 
 class FieldsController {
   // Get standard GETS fields
@@ -33,7 +36,7 @@ class FieldsController {
   }
 
   // Map uploaded fields to standard fields
-  static mapFields(req, res) {
+  static async mapFields(req, res) {
     try {
       const { uploadId, mappings, autoSuggest = false } = req.body;
 
@@ -51,12 +54,21 @@ class FieldsController {
         });
       }
 
+      // Check if upload exists
+      const upload = await Upload.findOne({ uploadId });
+      if (!upload) {
+        return res.status(404).json({
+          error: 'Upload not found',
+          message: `Upload with ID ${uploadId} not found`
+        });
+      }
+
       // Validate mappings against standard fields
       const standardFields = getsSchema.fields.map(f => f.path);
       const invalidMappings = [];
 
       for (const [sourceField, targetField] of Object.entries(mappings)) {
-        if (!standardFields.includes(targetField)) {
+        if (targetField && !standardFields.includes(targetField)) {
           invalidMappings.push(targetField);
         }
       }
@@ -69,23 +81,25 @@ class FieldsController {
         });
       }
 
-      // Store mapping in memory (will be moved to DB in Stage 6)
+      // Generate mapping ID
       const mappingId = 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
       
-      const fieldMapping = {
+      // Save mapping to database
+      const fieldMapping = new FieldMapping({
         mappingId,
         uploadId,
         mappings,
         autoSuggest,
-        createdAt: new Date().toISOString(),
         standardFields: getsSchema.fields
-      };
+      });
 
-      // Store in memory (replace with DB in Stage 6)
-      if (!global.fieldMappings) {
-        global.fieldMappings = new Map();
-      }
-      global.fieldMappings.set(mappingId, fieldMapping);
+      await fieldMapping.save();
+
+      // Update upload status
+      await Upload.findOneAndUpdate(
+        { uploadId },
+        { status: 'mapped' }
+      );
 
       res.json({
         success: true,
@@ -93,7 +107,7 @@ class FieldsController {
         uploadId,
         mappings,
         message: 'Field mappings saved successfully',
-        mappedFields: Object.keys(mappings).length,
+        mappedFields: Object.keys(mappings).filter(key => mappings[key]).length,
         totalStandardFields: standardFields.length
       });
 
@@ -107,20 +121,11 @@ class FieldsController {
   }
 
   // Get field mappings for an upload
-  static getFieldMappings(req, res) {
+  static async getFieldMappings(req, res) {
     try {
       const { uploadId } = req.params;
 
-      if (!global.fieldMappings) {
-        return res.status(404).json({
-          error: 'No mappings found',
-          message: 'No field mappings have been created yet'
-        });
-      }
-
-      // Find mapping by uploadId
-      const mapping = Array.from(global.fieldMappings.values())
-        .find(m => m.uploadId === uploadId);
+      const mapping = await FieldMapping.findOne({ uploadId });
 
       if (!mapping) {
         return res.status(404).json({
@@ -129,7 +134,14 @@ class FieldsController {
         });
       }
 
-      res.json(mapping);
+      res.json({
+        mappingId: mapping.mappingId,
+        uploadId: mapping.uploadId,
+        mappings: mapping.mappings,
+        autoSuggest: mapping.autoSuggest,
+        standardFields: mapping.standardFields,
+        createdAt: mapping.createdAt
+      });
 
     } catch (error) {
       console.error('Error getting field mappings:', error);
