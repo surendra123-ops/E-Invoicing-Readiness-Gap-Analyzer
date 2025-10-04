@@ -14,4 +14,7 @@ router.get('/:uploadId/reports', ReportController.getUploadReports);
 // Delete a specific report
 router.delete('/:reportId', ReportController.deleteReport);
 
+// Get report by ID (shareable URL) - This is the missing endpoint
+router.get('/report/:reportId', ReportController.getReport);
+
 module.exports = router;

@@ -12,6 +12,7 @@ const fieldsRoutes = require('./routes/fields');
 const rulesRoutes = require('./routes/rules');
 const reportsRoutes = require('./routes/reports');
 const analyzeRoutes = require('./routes/analyze');
+const ReportController = require('./controllers/ReportController');
 
 // Import database config
 const connectDB = require('./config/database');
@@ -45,6 +46,9 @@ app.use('/rules', rulesRoutes);
 app.use('/reports', reportsRoutes);
 app.use('/analyze', analyzeRoutes);
 
+// Add the missing GET /report/:reportId route
+app.get('/report/:reportId', ReportController.getReport);
+
 // Default route
 app.get('/', (req, res) => {
   res.json({
@@ -62,7 +66,8 @@ app.get('/', (req, res) => {
       validationResults: '/rules/results/:validationId',
       ruleDefinitions: '/rules/definitions',
       generateReport: '/reports/:uploadId?format=json|csv|pdf',
-      reportSummary: '/reports/:uploadId/summary'
+      reportSummary: '/reports/:uploadId/summary',
+      getReport: '/report/:reportId'  // Add this missing endpoint
     }
   });
 });

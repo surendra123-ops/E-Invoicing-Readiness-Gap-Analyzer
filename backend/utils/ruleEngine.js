@@ -17,8 +17,8 @@ class RuleEngine {
       score: 0
     };
 
-    // Initialize rule results
-    const ruleNames = ['REQUIRED_FIELD', 'DATE_FORMAT', 'CURRENCY_VALID', 'VAT_CALCULATION', 'LINE_MATH', 'TRN_PRESENT', 'DATA_TYPE'];
+    // Initialize rule results for the 5 PRD-required rules
+    const ruleNames = ['TOTALS_BALANCE', 'LINE_MATH', 'DATE_ISO', 'CURRENCY_ALLOWED', 'TRN_PRESENT'];
     ruleNames.forEach(ruleName => {
       results.ruleResults[ruleName] = {
         passed: 0,
@@ -32,15 +32,13 @@ class RuleEngine {
       const rowIssues = [];
       let rowPassed = true;
 
-      // Check each rule
+      // Check each rule according to PRD requirements
       const rules = [
-        { name: 'REQUIRED_FIELD', fn: this.checkRequiredField },
-        { name: 'DATE_FORMAT', fn: this.checkDateFormat },
-        { name: 'CURRENCY_VALID', fn: this.checkCurrencyValid },
-        { name: 'VAT_CALCULATION', fn: this.checkVatCalculation },
+        { name: 'TOTALS_BALANCE', fn: this.checkTotalsBalance },
         { name: 'LINE_MATH', fn: this.checkLineMath },
-        { name: 'TRN_PRESENT', fn: this.checkTrnPresent },
-        { name: 'DATA_TYPE', fn: this.checkDataType }
+        { name: 'DATE_ISO', fn: this.checkDateIso },
+        { name: 'CURRENCY_ALLOWED', fn: this.checkCurrencyAllowed },
+        { name: 'TRN_PRESENT', fn: this.checkTrnPresent }
       ];
 
       rules.forEach(({ name, fn }) => {
@@ -83,104 +81,10 @@ class RuleEngine {
     return results;
   }
 
-  // Rule: Required fields must not be empty
-  checkRequiredField(row, fieldMappings, rowIndex) {
+  // Rule 1: TOTALS_BALANCE — total_excl_vat + vat_amount == total_incl_vat (±0.01)
+  checkTotalsBalance(row, fieldMappings, rowIndex) {
     const issues = [];
-    const requiredFields = getsSchema.fields.filter(f => f.required);
-    
-    requiredFields.forEach(field => {
-      const mappedField = this.findMappedField(field.path, fieldMappings);
-      if (mappedField && row[mappedField]) {
-        const value = row[mappedField];
-        if (value === null || value === undefined || value === '' || 
-            (typeof value === 'string' && value.trim() === '')) {
-          issues.push({
-            row: rowIndex + 1,
-            field: field.path,
-            sourceField: mappedField,
-            rule: 'REQUIRED_FIELD',
-            error: 'Required field is empty',
-            value: value
-          });
-        }
-      } else if (mappedField) {
-        issues.push({
-          row: rowIndex + 1,
-          field: field.path,
-          sourceField: mappedField,
-          rule: 'REQUIRED_FIELD',
-          error: 'Required field is missing',
-          value: null
-        });
-      }
-    });
-
-    return {
-      passed: issues.length === 0,
-      issues
-    };
-  }
-
-  // Rule: Date must be in YYYY-MM-DD format
-  checkDateFormat(row, fieldMappings, rowIndex) {
-    const issues = [];
-    const dateFields = getsSchema.fields.filter(f => f.type === 'date');
-    
-    dateFields.forEach(field => {
-      const mappedField = this.findMappedField(field.path, fieldMappings);
-      if (mappedField && row[mappedField]) {
-        const dateValue = row[mappedField];
-        if (!this.isValidDateFormat(dateValue)) {
-          issues.push({
-            row: rowIndex + 1,
-            field: field.path,
-            sourceField: mappedField,
-            rule: 'DATE_FORMAT',
-            error: 'Invalid date format. Expected YYYY-MM-DD',
-            value: dateValue
-          });
-        }
-      }
-    });
-
-    return {
-      passed: issues.length === 0,
-      issues
-    };
-  }
-
-  // Rule: Currency must be valid ISO code
-  checkCurrencyValid(row, fieldMappings, rowIndex) {
-    const issues = [];
-    const currencyField = getsSchema.fields.find(f => f.path === 'invoice.currency');
-    
-    if (currencyField) {
-      const mappedField = this.findMappedField(currencyField.path, fieldMappings);
-      if (mappedField && row[mappedField]) {
-        const currency = row[mappedField];
-        if (!currencyField.enum.includes(currency)) {
-          issues.push({
-            row: rowIndex + 1,
-            field: currencyField.path,
-            sourceField: mappedField,
-            rule: 'CURRENCY_VALID',
-            error: `Invalid currency. Must be one of: ${currencyField.enum.join(', ')}`,
-            value: currency
-          });
-        }
-      }
-    }
-
-    return {
-      passed: issues.length === 0,
-      issues
-    };
-  }
-
-  // Rule: VAT calculation validation
-  checkVatCalculation(row, fieldMappings, rowIndex) {
-    const issues = [];
-    const tolerance = 0.01; // Allow small rounding differences
+    const tolerance = 0.01;
     
     const totalExclVatField = this.findMappedField('invoice.total_excl_vat', fieldMappings);
     const vatAmountField = this.findMappedField('invoice.vat_amount', fieldMappings);
@@ -198,7 +102,7 @@ class RuleEngine {
             row: rowIndex + 1,
             field: 'invoice.total_incl_vat',
             sourceField: totalInclVatField,
-            rule: 'VAT_CALCULATION',
+            rule: 'TOTALS_BALANCE',
             error: `VAT calculation error. Expected ${expectedTotal}, got ${totalInclVat}`,
             value: totalInclVat,
             expected: expectedTotal
@@ -213,7 +117,7 @@ class RuleEngine {
     };
   }
 
-  // Rule: Line item math validation
+  // Rule 2: LINE_MATH — line_total == qty * unit_price (±0.01); include exampleLine when false
   checkLineMath(row, fieldMappings, rowIndex) {
     const issues = [];
     const tolerance = 0.01;
@@ -237,7 +141,7 @@ class RuleEngine {
             error: `Line calculation error. Expected ${expectedTotal}, got ${lineTotal}`,
             value: lineTotal,
             expected: expectedTotal,
-            lineIndex: lineIndex + 1
+            exampleLine: lineIndex + 1
           });
         }
       }
@@ -249,7 +153,58 @@ class RuleEngine {
     };
   }
 
-  // Rule: TRN must be present for buyer and seller
+  // Rule 3: DATE_ISO — invoice.issue_date matches YYYY-MM-DD
+  checkDateIso(row, fieldMappings, rowIndex) {
+    const issues = [];
+    const dateField = this.findMappedField('invoice.issue_date', fieldMappings);
+    
+    if (dateField && row[dateField]) {
+      const dateValue = row[dateField];
+      if (!this.isValidDateFormat(dateValue)) {
+        issues.push({
+          row: rowIndex + 1,
+          field: 'invoice.issue_date',
+          sourceField: dateField,
+          rule: 'DATE_ISO',
+          error: 'Invalid date format. Expected YYYY-MM-DD',
+          value: dateValue
+        });
+      }
+    }
+
+    return {
+      passed: issues.length === 0,
+      issues
+    };
+  }
+
+  // Rule 4: CURRENCY_ALLOWED — currency ∈ [AED, SAR, MYR, USD]; include bad value when false
+  checkCurrencyAllowed(row, fieldMappings, rowIndex) {
+    const issues = [];
+    const allowedCurrencies = ['AED', 'SAR', 'MYR', 'USD'];
+    const currencyField = this.findMappedField('invoice.currency', fieldMappings);
+    
+    if (currencyField && row[currencyField]) {
+      const currency = row[currencyField];
+      if (!allowedCurrencies.includes(currency)) {
+        issues.push({
+          row: rowIndex + 1,
+          field: 'invoice.currency',
+          sourceField: currencyField,
+          rule: 'CURRENCY_ALLOWED',
+          error: `Invalid currency. Must be one of: ${allowedCurrencies.join(', ')}`,
+          value: currency
+        });
+      }
+    }
+
+    return {
+      passed: issues.length === 0,
+      issues
+    };
+  }
+
+  // Rule 5: TRN_PRESENT — buyer.trn and seller.trn non-empty
   checkTrnPresent(row, fieldMappings, rowIndex) {
     const issues = [];
     const trnFields = [
@@ -270,48 +225,6 @@ class RuleEngine {
             error: `${trnField.label} is empty`,
             value: trn
           });
-        }
-      }
-    });
-
-    return {
-      passed: issues.length === 0,
-      issues
-    };
-  }
-
-  // Rule: Data type validation
-  checkDataType(row, fieldMappings, rowIndex) {
-    const issues = [];
-    
-    getsSchema.fields.forEach(field => {
-      const mappedField = this.findMappedField(field.path, fieldMappings);
-      if (mappedField && row[mappedField] !== null && row[mappedField] !== undefined) {
-        const value = row[mappedField];
-        
-        if (field.type === 'number' && isNaN(parseFloat(value))) {
-          issues.push({
-            row: rowIndex + 1,
-            field: field.path,
-            sourceField: mappedField,
-            rule: 'DATA_TYPE',
-            error: `Expected number, got ${typeof value}`,
-            value: value
-          });
-        }
-        
-        if (field.pattern && typeof value === 'string') {
-          const regex = new RegExp(field.pattern);
-          if (!regex.test(value)) {
-            issues.push({
-              row: rowIndex + 1,
-              field: field.path,
-              sourceField: mappedField,
-              rule: 'DATA_TYPE',
-              error: `Value does not match pattern ${field.pattern}`,
-              value: value
-            });
-          }
         }
       }
     });
