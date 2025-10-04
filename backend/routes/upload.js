@@ -9,10 +9,10 @@ router.post('/', upload.single('file'), UploadController.uploadFile);
 // Upload JSON payload
 router.post('/json', UploadController.uploadJsonPayload);
 
-// Get upload details
-router.get('/:uploadId', UploadController.getUpload);
-
-// Get upload history
+// Get upload history - MUST come before /:uploadId route
 router.get('/history', UploadController.getUploadHistory);
+
+// Get upload details - MUST come after specific routes
+router.get('/:uploadId', UploadController.getUpload);
 
 module.exports = router;
