@@ -1,0 +1,14 @@
+{
+  "name": "e-invoicing-readiness-analyzer-root",
+  "version": "1.0.0",
+  "description": "E-Invoicing Readiness & Gap Analyzer - Root package for deployment",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "build": "cd backend && npm install && npm run build",
+    "install": "cd backend && npm install && cd ../frontend && npm install"
+  },
+  "keywords": ["e-invoicing", "gets", "invoice-analysis", "readiness"],
+  "author": "",
+  "license": "ISC"
+}
