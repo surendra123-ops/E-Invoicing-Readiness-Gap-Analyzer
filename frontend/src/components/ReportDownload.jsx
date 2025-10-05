@@ -59,14 +59,36 @@ const ReportDownload = ({ uploadData, fieldMapping, validationResults, onComplet
     return '#dc3545'
   }
 
-  // Get scores from validationResults or reportSummary
+  // Get scores from multiple possible sources
   const getScores = () => {
+    // Try validationResults first
     if (validationResults?.categoryScores) {
+      console.log('Using validationResults.categoryScores:', validationResults.categoryScores)
       return validationResults.categoryScores
     }
+    
+    // Try validationResults.analysis
+    if (validationResults?.analysis?.categoryScores) {
+      console.log('Using validationResults.analysis.categoryScores:', validationResults.analysis.categoryScores)
+      return validationResults.analysis.categoryScores
+    }
+    
+    // Try reportSummary
     if (reportSummary?.categoryScores) {
+      console.log('Using reportSummary.categoryScores:', reportSummary.categoryScores)
       return reportSummary.categoryScores
     }
+    
+    // Try reportSummary.analysis
+    if (reportSummary?.analysis?.categoryScores) {
+      console.log('Using reportSummary.analysis.categoryScores:', reportSummary.analysis.categoryScores)
+      return reportSummary.analysis.categoryScores
+    }
+    
+    // Debug: log what we have
+    console.log('validationResults:', validationResults)
+    console.log('reportSummary:', reportSummary)
+    
     // Fallback to default scores
     return {
       data: 0,
