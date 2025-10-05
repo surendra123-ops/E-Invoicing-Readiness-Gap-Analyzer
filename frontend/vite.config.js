@@ -18,6 +18,16 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true
-  }
+    sourcemap: false, // Disable sourcemap for production
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          http: ['axios']
+        }
+      }
+    }
+  },
+  base: './' // Use relative paths for assets
 })

@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
 require('dotenv').config();
 
 // Import routes
@@ -24,12 +25,14 @@ const PORT = process.env.PORT || 3000;
 connectDB();
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP for development
+}));
 app.use(morgan('combined'));
 
-// CORS configuration for React frontend
+// CORS configuration - allow all origins for production
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+  origin: process.env.NODE_ENV === 'production' ? true : (process.env.FRONTEND_URL || 'http://localhost:3001'),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -38,7 +41,7 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Routes
+// API Routes
 app.use('/health', healthRoutes);
 app.use('/upload', uploadRoutes);
 app.use('/fields', fieldsRoutes);
@@ -49,8 +52,11 @@ app.use('/analyze', analyzeRoutes);
 // Add the missing GET /report/:reportId route
 app.get('/report/:reportId', ReportController.getReport);
 
-// Default route
-app.get('/', (req, res) => {
+// Serve static files from the React app build directory
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+// API Documentation route
+app.get('/api', (req, res) => {
   res.json({
     message: 'E-Invoicing Readiness & Gap Analyzer API',
     version: '1.0.0',
@@ -67,16 +73,21 @@ app.get('/', (req, res) => {
       ruleDefinitions: '/rules/definitions',
       generateReport: '/reports/:uploadId?format=json|csv|pdf',
       reportSummary: '/reports/:uploadId/summary',
-      getReport: '/report/:reportId'  // Add this missing endpoint
+      getReport: '/report/:reportId'
     }
   });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
+// Catch all handler: send back React's index.html file for any non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+});
+
+// 404 handler for API routes
+app.use('/api/*', (req, res) => {
   res.status(404).json({
-    error: 'Endpoint not found',
-    message: 'The requested endpoint does not exist'
+    error: 'API endpoint not found',
+    message: 'The requested API endpoint does not exist'
   });
 });
 
@@ -98,7 +109,7 @@ app.listen(PORT, () => {
   console.log(`🔍 Rules endpoint: http://localhost:${PORT}/rules`);
   console.log(`📋 Reports endpoint: http://localhost:${PORT}/reports`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3001'}`);
+  console.log(`🔗 Frontend served from: ${path.join(__dirname, '../frontend/dist')}`);
 });
 
 module.exports = app;

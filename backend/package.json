@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "build": "cd ../frontend && npm install && npm run build",
+    "postinstall": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "install-puppeteer": "npx puppeteer browsers install chrome"
   },
@@ -21,7 +23,7 @@
     "csv-parser": "^3.0.0",
     "helmet": "^7.0.0",
     "morgan": "^1.10.0",
-    "puppeteer": "^21.5.0",
+    "puppeteer-core": "^21.5.0",
     "json2csv": "^5.0.7"
   },
   "devDependencies": {
