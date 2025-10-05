@@ -115,25 +115,6 @@ const History = ({ onSelectUpload, onBack }) => {
         </div>
       ) : (
         <>
-          <div className="history-stats">
-            <div className="stat-card">
-              <div className="stat-number">{pagination.total}</div>
-              <div className="stat-label">Total Analyses</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-number">
-                {uploads.filter(u => u.score !== null).length}
-              </div>
-              <div className="stat-label">Completed</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-number">
-                {uploads.filter(u => u.score !== null).reduce((sum, u) => sum + (u.score || 0), 0) / uploads.filter(u => u.score !== null).length || 0}
-              </div>
-              <div className="stat-label">Avg Score</div>
-            </div>
-          </div>
-
           <div className="uploads-table-container">
             <table className="uploads-table">
               <thead>

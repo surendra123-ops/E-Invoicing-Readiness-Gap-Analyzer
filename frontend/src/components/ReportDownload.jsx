@@ -52,6 +52,32 @@ const ReportDownload = ({ uploadData, fieldMapping, validationResults, onComplet
     return levelMap[level] || 'badge-secondary'
   }
 
+  const getScoreColor = (score) => {
+    if (score >= 90) return '#28a745'
+    if (score >= 70) return '#ffc107'
+    if (score >= 50) return '#fd7e14'
+    return '#dc3545'
+  }
+
+  // Get scores from validationResults or reportSummary
+  const getScores = () => {
+    if (validationResults?.categoryScores) {
+      return validationResults.categoryScores
+    }
+    if (reportSummary?.categoryScores) {
+      return reportSummary.categoryScores
+    }
+    // Fallback to default scores
+    return {
+      data: 0,
+      coverage: 0,
+      rules: 0,
+      posture: 0
+    }
+  }
+
+  const scores = getScores()
+
   if (loading) {
     return (
       <div className="report-loading">
@@ -180,49 +206,49 @@ const ReportDownload = ({ uploadData, fieldMapping, validationResults, onComplet
 
       <div className="score-breakdown">
         <h4>Score Breakdown</h4>
-        <div className="score-bars">
-          <div className="score-bar">
-            <div className="score-label">Data Quality</div>
-            <div className="score-bar-container">
-              <div 
-                className="score-bar-fill" 
-                style={{ width: `${reportSummary.categoryScores?.data || 0}%` }}
-              ></div>
-              <span className="score-value">{reportSummary.categoryScores?.data || 0}%</span>
+        <div className="score-cards">
+          <div className="score-card">
+            <div className="score-card-header">
+              <div className="score-icon">📊</div>
+              <div className="score-label">Data Quality</div>
             </div>
+            <div className="score-value" style={{ color: getScoreColor(scores.data) }}>
+              {scores.data}%
+            </div>
+            <div className="score-description">Data completeness and format</div>
           </div>
           
-          <div className="score-bar">
-            <div className="score-label">Field Coverage</div>
-            <div className="score-bar-container">
-              <div 
-                className="score-bar-fill" 
-                style={{ width: `${reportSummary.categoryScores?.coverage || 0}%` }}
-              ></div>
-              <span className="score-value">{reportSummary.categoryScores?.coverage || 0}%</span>
+          <div className="score-card">
+            <div className="score-card-header">
+              <div className="score-icon">🎯</div>
+              <div className="score-label">Field Coverage</div>
             </div>
+            <div className="score-value" style={{ color: getScoreColor(scores.coverage) }}>
+              {scores.coverage}%
+            </div>
+            <div className="score-description">GETS schema mapping</div>
           </div>
           
-          <div className="score-bar">
-            <div className="score-label">Rule Compliance</div>
-            <div className="score-bar-container">
-              <div 
-                className="score-bar-fill" 
-                style={{ width: `${reportSummary.categoryScores?.rules || 0}%` }}
-              ></div>
-              <span className="score-value">{reportSummary.categoryScores?.rules || 0}%</span>
+          <div className="score-card">
+            <div className="score-card-header">
+              <div className="score-icon">✅</div>
+              <div className="score-label">Rule Compliance</div>
             </div>
+            <div className="score-value" style={{ color: getScoreColor(scores.rules) }}>
+              {scores.rules}%
+            </div>
+            <div className="score-description">Business logic validation</div>
           </div>
           
-          <div className="score-bar">
-            <div className="score-label">Technical Posture</div>
-            <div className="score-bar-container">
-              <div 
-                className="score-bar-fill" 
-                style={{ width: `${reportSummary.categoryScores?.posture || 0}%` }}
-              ></div>
-              <span className="score-value">{reportSummary.categoryScores?.posture || 0}%</span>
+          <div className="score-card">
+            <div className="score-card-header">
+              <div className="score-icon">⚙️</div>
+              <div className="score-label">Technical Posture</div>
             </div>
+            <div className="score-value" style={{ color: getScoreColor(scores.posture) }}>
+              {scores.posture}%
+            </div>
+            <div className="score-description">Infrastructure readiness</div>
           </div>
         </div>
       </div>
