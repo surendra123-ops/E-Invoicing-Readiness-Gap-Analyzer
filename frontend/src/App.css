@@ -587,9 +587,9 @@ body {
 .completion-header p {
   font-size: 1.1rem;
   opacity: 0.9;
-}
+  }
 
-.completion-summary {
+  .completion-summary {
   padding: 30px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -620,9 +620,9 @@ body {
 
 .summary-card strong {
   color: #2c3e50;
-}
+  }
 
-.completion-actions {
+  .completion-actions {
   padding: 30px;
   display: flex;
   gap: 15px;

@@ -15,10 +15,7 @@ const RuleValidation = ({ uploadData, fieldMapping, onValidationComplete, onCanc
       const results = await checkRules(uploadData.uploadId)
       setValidationResults(results)
       
-      // Call callback with validation results
-      setTimeout(() => {
-        onValidationComplete(results)
-      }, 2000)
+      // Remove automatic progression - let user click manually
 
     } catch (error) {
       setError(error.response?.data?.message || error.message || 'Failed to run validation')
