@@ -5,6 +5,10 @@ const connectDB = async () => {
     const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/e-invoicing-analyzer', {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 30000, // 30 seconds
+      socketTimeoutMS: 45000, // 45 seconds
+      bufferMaxEntries: 0,
+      bufferCommands: false,
     });
 
     console.log(`📦 MongoDB Connected: ${conn.connection.host}`);
