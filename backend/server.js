@@ -13,7 +13,7 @@ const fieldsRoutes = require('./routes/fields');
 const rulesRoutes = require('./routes/rules');
 const reportsRoutes = require('./routes/reports');
 const analyzeRoutes = require('./routes/analyze');
-const ReportController = require('./controllers/ReportController');
+const ReportController = require('./controllers/reportController');
 
 // Import database config
 const connectDB = require('./config/database');
