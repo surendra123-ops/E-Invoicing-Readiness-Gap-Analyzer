@@ -7,8 +7,7 @@ const connectDB = async () => {
       useUnifiedTopology: true,
       serverSelectionTimeoutMS: 30000, // 30 seconds
       socketTimeoutMS: 45000, // 45 seconds
-      bufferMaxEntries: 0,
-      bufferCommands: false,
+      // Removed bufferMaxEntries and bufferCommands as they're not supported
     });
 
     console.log(`📦 MongoDB Connected: ${conn.connection.host}`);
