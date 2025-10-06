@@ -1,5 +1,5 @@
 const { Parser } = require('json2csv');
-// const puppeteer = require('puppeteer'); // Commented out since we removed puppeteer
+const puppeteer = require('puppeteer-core');
 const fs = require('fs');
 const path = require('path');
 
@@ -143,18 +143,14 @@ class ReportGenerator {
     return parser.parse(csvData);
   }
 
-  // Generate PDF report - Modified to handle missing puppeteer
+  // Generate PDF report
   async generatePDFReport(uploadData, fieldMapping, validationResults) {
-    // Return HTML content instead of PDF since puppeteer is not available
     const html = this.generateHTMLReport(uploadData, fieldMapping, validationResults);
     
-    // Return HTML as buffer (you can modify this based on your needs)
-    return Buffer.from(html, 'utf8');
-    
-    /* Original PDF generation code (commented out):
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser'
     });
     
     const page = await browser.newPage();
@@ -173,7 +169,6 @@ class ReportGenerator {
     
     await browser.close();
     return pdf;
-    */
   }
 
   // Generate HTML template for PDF
